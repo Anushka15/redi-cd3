@@ -21,3 +21,8 @@ class Queries:
                 AND ({fd_condition_to_be_appended})
             )
         """
+
+    SELECT_DISTINCT_ATTRIBUTE_VALUES = """
+            SELECT DISTINCT({attribute_name})
+            FROM {table_name} t1
+    """

@@ -15,18 +15,22 @@ def fetch_data_results(query):
         print(f"Error executing query: {e}")
         return None
 
-def fetch_inconsistent_records(table_name,main_attributes,dependent_attributes):
-    main_query_select = ", ".join([f"t1.{attr}" for attr in main_attributes + dependent_attributes])
+def find_inconsistent_records(table_name,determinant_attributes,dependent_attributes):
+    main_query_select = ", ".join([f"t1.{attr}" for attr in determinant_attributes + dependent_attributes])
     fd_condition_to_be_appended = " OR ".join([f"t1.{attr} <> t2.{attr}" for attr in dependent_attributes])
     return Queries.INCONSISTENT_RECORDS_QUERY.format(main_query_select=main_query_select,
                                          table_name=table_name,
                                          fd_condition_to_be_appended=fd_condition_to_be_appended)
     return final_sql
 
-def fetch_consistent_records(table_name,main_attributes,dependent_attributes):
-    main_query_select = ", ".join([f"t1.{attr}" for attr in main_attributes + dependent_attributes])
+def find_consistent_records(table_name,determinant_attributes,dependent_attributes):
+    main_query_select = ", ".join([f"t1.{attr}" for attr in determinant_attributes + dependent_attributes])
     fd_condition_to_be_appended = " OR ".join([f"t1.{attr} <> t2.{attr}" for attr in dependent_attributes])
     return Queries.CONSISTENT_RECORDS_QUERY.format(main_query_select=main_query_select,
                                                      table_name=table_name,
                                                      fd_condition_to_be_appended=fd_condition_to_be_appended)
     return final_sql
+
+def find_distinct_attribute_values(table_name,attribute_name):
+    return Queries.SELECT_DISTINCT_ATTRIBUTE_VALUES.format(attribute_name=attribute_name,
+                                                           table_name=table_name)
