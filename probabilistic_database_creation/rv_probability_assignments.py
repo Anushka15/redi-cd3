@@ -90,20 +90,28 @@ def create_rv_assignments_with_prob_SWA(data,dependent_attributes_mappings,deter
         rv_assignments[determinant] = rv_assignment
     return rv_assignments
 
-def compute_sentences(rv_assignments):
+
+def compute_sentences(rv_assignments,data,determinant_attributes):
     sentence = {}
-    for determinant,assignment in rv_assignments.items():
+    for determinant, assignment in rv_assignments.items():
         lists = [tuple(determinant_dict.items()) for determinant_dict in assignment]
         cartesian_product = []
+        owns = data[data[f'{determinant_attributes[0]}'] == f'{determinant}']
+        consistent = check_if_already_consistent(owns)
         for combination in product(*lists):
             values = []
             keys = []
+            prob = 1
             for item in combination:
                 key = item[0]  # Extract the key (e.g., 'a1=1', 'b1=1')
                 value_dict = item[1]  # Extract the corresponding dictionary {'value': ..., 'prob': ...}
                 values.append(value_dict['value'])  # Append 'value' from each dictionary
-                keys.append(key)  # Append key to keys list
-            keys_str = ' & '.join(keys)
-            cartesian_product.append((tuple(values), keys_str))
+                prob = prob and value_dict['prob']
+                if (consistent and value_dict['prob'] == 1) or (not consistent):
+                    keys.append(key)  # Append key to keys list
+            if prob != 0:
+                keys_str = ' & '.join(keys)
+                cartesian_product.append((tuple(values), keys_str))
+
         sentence[f'{determinant}'] = cartesian_product
     return sentence
