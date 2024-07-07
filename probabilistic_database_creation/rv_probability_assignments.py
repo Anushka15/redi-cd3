@@ -1,6 +1,11 @@
 import string
 from itertools import product
 
+
+#Used to generate the possible RVs based on the dependent attributes
+#Example -  FD: person -> {model,color}
+#determinant attributes passed: ['model','color']
+#data = dataframe for inconsistent DB
 def generate_rvs(data,dependent_attributes):
     dependent_attributes_mappings = []
     for attribute in dependent_attributes:
@@ -24,6 +29,8 @@ def create_rv_assignments(data,dependent_attributes_mappings,determinant_attribu
         rv_assignments[determinant] = rv_assignment
     return rv_assignments
 
+
+#RV assignments and Probability calculation for CWA
 def create_rv_assignments_with_prob_CWA(data,dependent_attributes_mappings,determinant_attributes,dependent_attributes):
     distinct_determinant_values = data[determinant_attributes[0]].unique()
     rv_assignments = {}
@@ -36,6 +43,8 @@ def create_rv_assignments_with_prob_CWA(data,dependent_attributes_mappings,deter
             for key,value in dependent.items():
                 prob = 0
                 if value in attributes_present:
+                    #In CWA, all attributes present in the tuple get equal probability
+                    #Not present get 0 prob
                     prob = 1/len(attributes_present)
                 assignment = {'value': f'{value}', 'prob': prob}
                 rv_list[f'{letter}{i+1}={key}'] = assignment
@@ -61,14 +70,18 @@ def create_rv_assignments_with_prob_SWA(data,dependent_attributes_mappings,deter
             attributes_present = list(set(owns[f'{dependent_attributes[j]}'].tolist()))
             rv_list = {}
             for key,value in dependent.items():
+                #Inconsistent and all values possible are present. They get equal prob
                 if (value in attributes_present) and (not consistent) and (len(dependent)==len(attributes_present)):
                     prob = 1/len(attributes_present)
+                #Inconsistent, but value is present in tuple - 0.8 prob
                 elif (value in attributes_present) and (not consistent):
                     prob = 0.8/len(attributes_present)
                 elif (value in attributes_present) and (consistent):
                     prob = 1
                 elif (value not in attributes_present) and (consistent):
                     prob = 0
+                #Inconsistent and value not present in tuple as well
+                #0.2 is divided between all such values
                 else:
                     prob = 0.2/((len(dependent))-len(attributes_present))
                 assignment = {'value': f'{value}', 'prob': prob}
